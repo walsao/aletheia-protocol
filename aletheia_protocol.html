@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Aletheia Protocol</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0e0e0e;
+    --paper: #f5f0e8;
+    --gold: #b8924a;
+    --muted: #6b6560;
+    --rule: #c8bfb0;
+  }
+
+  html { background: var(--paper); }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 48px 120px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 72px;
+    animation: fadeIn 1.2s ease both;
+  }
+
+  .greek {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    font-style: italic;
+    letter-spacing: 0.05em;
+    margin-top: 16px;
+  }
+
+  .rule {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 32px auto;
+    opacity: 0.6;
+  }
+
+  .section {
+    margin-bottom: 56px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.2s; }
+  .section:nth-child(4) { animation-delay: 0.3s; }
+  .section:nth-child(5) { animation-delay: 0.4s; }
+  .section:nth-child(6) { animation-delay: 0.5s; }
+  .section:nth-child(7) { animation-delay: 0.6s; }
+
+  .section-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 0.5px;
+    background: var(--rule);
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  h2 em { font-style: italic; color: var(--gold); }
+
+  p {
+    font-size: 19px;
+    line-height: 1.75;
+    color: #2a2520;
+    font-weight: 300;
+    margin-bottom: 14px;
+  }
+
+  p strong {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .pullquote {
+    border-left: 2px solid var(--gold);
+    padding: 4px 0 4px 28px;
+    margin: 32px 0;
+  }
+
+  .pullquote p {
+    font-size: 22px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .acts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 32px 0;
+  }
+
+  .act {
+    border: 0.5px solid var(--rule);
+    padding: 24px;
+    position: relative;
+  }
+
+  .act-number {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .act h3 {
+    font-size: 21px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+
+  .act p {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .manifesto-points {
+    list-style: none;
+    margin: 20px 0;
+  }
+
+  .manifesto-points li {
+    font-size: 18px;
+    line-height: 1.7;
+    padding: 10px 0 10px 28px;
+    border-bottom: 0.5px solid var(--rule);
+    position: relative;
+    font-weight: 300;
+    color: #2a2520;
+  }
+
+  .manifesto-points li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-weight: 300;
+  }
+
+  .license-block {
+    background: #ede8df;
+    border: 0.5px solid var(--rule);
+    padding: 24px 28px;
+    margin-top: 32px;
+  }
+
+  .license-block p {
+    font-family: 'Courier Prime', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .license-block strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 0.5px solid var(--rule);
+    animation: fadeIn 1s ease 0.8s both;
+  }
+
+  .footer p {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    margin: 0;
+  }
+
+  .alpha-mark {
+    display: inline-block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    color: var(--gold);
+    opacity: 0.4;
+    margin-bottom: 8px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .page { padding: 48px 28px 80px; }
+    .acts { grid-template-columns: 1fr; }
+    p { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="page">
+
+  <header class="header">
+    <span class="greek">Ἀλήθεια</span>
+    <h1>The <em>Aletheia</em><br>Protocol</h1>
+    <p class="subtitle">A new method of learning — for the age of AI</p>
+    <div class="rule"></div>
+  </header>
+
+  <section class="section">
+    <div class="section-label">Origin</div>
+    <p>Aletheia — from ancient Greek — means <strong>unconcealment</strong>. Not the transfer of truth from one mind to another. The emergence of truth from within. Heidegger called it the most honest word ever coined for what understanding actually feels like.</p>
+    <p>This protocol is named for that word deliberately. Because what follows is not a teaching method. It is an uncovering method.</p>
+  </section>
+
+  <section class="section">
+    <div class="section-label">The Problem</div>
+    <div class="pullquote">
+      <p>"Every tool we have optimizes around the text. We summarize it, gamify it, flip it. But we never question whether it needs to exist at all."</p>
+    </div>
+    <p>The traditional learning chain assumes a source — a book, a lecture, a document — that the learner must absorb before understanding can begin. All pedagogy since Gutenberg has been built on this assumption.</p>
+    <p>The Aletheia Protocol discards it entirely.</p>
+    <p>The AI already holds the knowledge. The text is no longer the gateway. <strong>The conversation is the curriculum.</strong></p>
+  </section>
+
+  <section class="section">
+    <div class="section-label">The Method</div>
+    <h2>Two acts. No reading.</h2>
+    <div class="acts">
+      <div class="act">
+        <span class="act-number">Act I</span>
+        <h3>Interrogation</h3>
+        <p>The AI opens with a single provocative, reductive, or deliberately incomplete statement about the topic. The learner reacts. Their response reveals their existing mental model — its shape, its gaps, its false certainties. The AI finds the cracks. Not to embarrass. To create genuine cognitive tension.</p>
+      </div>
+      <div class="act">
+        <span class="act-number">Act II</span>
+        <h3>Construction</h3>
+        <p>Once the existing model is destabilized, the AI becomes a collaborator. Together, from the learner's own foundations, a more accurate model is built — piece by piece, through proposal and extension, question and answer. The learner arrives at the idea. They are never simply handed it.</p>
+      </div>
+    </div>
+    <p>The session ends not when the content is covered, but when the learner can construct the idea independently — in their own language, from their own reasoning.</p>
+  </section>
+
+  <section class="section">
+    <div class="section-label">Principles</div>
+    <ul class="manifesto-points">
+      <li>The text is never the starting point. The learner's existing belief is.</li>
+      <li>Confusion is not failure. It is the necessary precondition for genuine understanding.</li>
+      <li>The AI never lectures. It provokes, listens, and builds alongside.</li>
+      <li>No concept is delivered. Every concept is arrived at.</li>
+      <li>The measure of learning is not recall. It is the ability to construct under pressure.</li>
+      <li>Speed of understanding scales with the honesty of the learner's initial assertion.</li>
+      <li>The conversation is the curriculum. There is no other document.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <div class="section-label">What This Is Not</div>
+    <p>This is not tutoring. Tutoring assumes a student who has read and needs clarification.</p>
+    <p>This is not the Socratic method. Socrates was limited to his own knowledge and one student at a time. The Aletheia Protocol is domain-agnostic, infinitely scalable, and requires no prior reading from either party.</p>
+    <p>This is not AI-assisted learning. AI-assisted learning still centers the text. <strong>The Aletheia Protocol centers the mind.</strong></p>
+  </section>
+
+  <section class="section">
+    <div class="section-label">License & Attribution</div>
+    <div class="license-block">
+      <p><strong>The Aletheia Protocol</strong> — Original concept and method.<br><br>
+      Licensed under <strong>Creative Commons CC BY-NC-SA 4.0</strong><br><br>
+      You are free to share and adapt this work for non-commercial purposes, provided you give appropriate credit to the original author, indicate if changes were made, and distribute any derivative works under the same license.<br><br>
+      Commercial use requires explicit written permission from the originator.<br><br>
+      Authorship and origination date are established by the public commit history of this repository.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="alpha-mark">α</div>
+    <p>v0.1 — The beginning of the uncovering</p>
+  </footer>
+
+</div>
+</body>
+</html>
